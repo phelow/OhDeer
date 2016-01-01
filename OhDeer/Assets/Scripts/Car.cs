@@ -24,7 +24,18 @@ public class Car : MonoBehaviour {
 	[SerializeField]
 	private Transform m_transform;
 
+	[SerializeField]
+	private int m_health;
+
 	private float m_fieldOfViewAngle = 90;
+
+	private const float MAXIMUM_CAMERA_DISTANCE = 20.0f;
+
+	private const float CHECK_FOR_DESTRUCTION_TIME = 1.0f;
+
+	private const float HEALTH_DIVISOR = 1.4f;
+
+	private static Player m_player;
 
 	private enum currentState
 	{
@@ -37,25 +48,32 @@ public class Car : MonoBehaviour {
 
 	// Use this for initialization
 	void Start () {
+		if (m_player == null) {
+			m_player = GameObject.FindGameObjectWithTag ("Player").GetComponent<Player>();
+		}
+
 	}
 	
 	// Update is called once per frame
-	void Update () {
-		// Determine if there's a deer ahead and if it is to the left or the right
+	public IEnumerator CheckForDestruction () {
+		while (true) {
+			// Destroy this car when it is too far far from the camera
+			if (m_transform.position.x > MAXIMUM_CAMERA_DISTANCE || m_transform.position.x < -MAXIMUM_CAMERA_DISTANCE || m_transform.position.y > MAXIMUM_CAMERA_DISTANCE || m_transform.position.y < -MAXIMUM_CAMERA_DISTANCE) {
+				Destroy (this.gameObject);
+			}
 
-		// Determine if the deer is within breaking distance
+			yield return new WaitForSeconds (CHECK_FOR_DESTRUCTION_TIME);
+		}
 	}
 
 	void OnTriggerStay2D(Collider2D other){
 		Vector3 direction = other.transform.position - transform.position;
 		float angle = Mathf.Atan2 (direction.x, direction.y)*Mathf.Rad2Deg - 90;
-		Debug.Log (angle + " " + other.gameObject.name );
 		float fov;
 
 
 		if (other.tag == "Player") {
 			fov = m_fieldOfView;
-
 		} else {
 			fov = m_fieldOfView/4;
 		}
@@ -73,6 +91,29 @@ public class Car : MonoBehaviour {
 		m_curState = currentState.MOVING_FORWARD;
 	}
 
+	void OnCollisionEnter2D(Collision2D collision){
+
+
+		if (collision.gameObject.tag == "Player") {
+			// Kill the player
+			collision.gameObject.GetComponent<Player>().KillPlayer();
+		} else {
+			//TODO: inflict damage based off speed and award points accordingly
+			m_player.GainPoints(100);
+
+			m_health--;
+			if (m_health < 0) {
+				Explode ();
+			}
+		}
+	}
+
+	void Explode()
+	{
+		//TODO: put in explosion mechanics
+		Destroy(this.gameObject);
+	}
+
 	void FixedUpdate() {
 		switch (m_curState) {
 		case currentState.MOVING_FORWARD:
@@ -83,10 +124,12 @@ public class Car : MonoBehaviour {
 		case currentState.TURNING_LEFT:
 			m_rigidbody.AddTorque ( m_turnRate);
 			m_rigidbody.velocity *= .95f;
+			m_rigidbody.AddForce (m_transform.up * m_acceleration);
 			break;
 		case currentState.TURNING_RIGHT:
 			m_rigidbody.AddTorque ( -1 * m_turnRate);
 			m_rigidbody.velocity *= .95f;
+			m_rigidbody.AddForce (m_transform.up * m_acceleration);
 			break;
 			
 		}
