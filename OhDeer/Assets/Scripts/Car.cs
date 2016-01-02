@@ -39,12 +39,12 @@ public class Car : MonoBehaviour {
 
 	private enum currentState
 	{
-		MOVING_FORWARD,
+		PURSUING_WAYPOINT,
 		TURNING_LEFT,
 		TURNING_RIGHT
 	}
 
-	private currentState m_curState = currentState.MOVING_FORWARD;
+	private currentState m_curState = currentState.PURSUING_WAYPOINT;
 
 	// Use this for initialization
 	void Start () {
@@ -83,12 +83,12 @@ public class Car : MonoBehaviour {
 			m_curState = currentState.TURNING_RIGHT;
 
 		} else {
-			m_curState = currentState.MOVING_FORWARD;
+			m_curState = currentState.PURSUING_WAYPOINT;
 		}
 	}
 
 	void OnTriggerExit2D(Collider2D other){
-		m_curState = currentState.MOVING_FORWARD;
+		m_curState = currentState.PURSUING_WAYPOINT;
 	}
 
 	void OnCollisionEnter2D(Collision2D collision){
@@ -116,9 +116,9 @@ public class Car : MonoBehaviour {
 
 	void FixedUpdate() {
 		switch (m_curState) {
-		case currentState.MOVING_FORWARD:
+		case currentState.PURSUING_WAYPOINT:
 			if ((Vector3.Cross(new Vector3(m_rigidbody.velocity.x,m_rigidbody.velocity.y,0), m_transform.up)).magnitude < m_maximumSpeed) {
-				//Don't turn
+				//TODO: Turn towards our next waypoint
 			}
 			break;
 		case currentState.TURNING_LEFT:
