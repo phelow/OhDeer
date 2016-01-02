@@ -38,7 +38,6 @@ public class SpawnPoint : MonoBehaviour {
 	{
 		return m_output;
 	}
-
 	// Use this for initialization
 	public void Spawn () {
 		Collider2D cols = Physics2D.OverlapCircle (new Vector2(transform.position.x,transform.position.y), .1f);
@@ -65,9 +64,9 @@ public class SpawnPoint : MonoBehaviour {
 
 			SpawnPoint sp = go.GetComponent<RoadPiece> ().GetSpawnPoint (oppositeOrientation);
 			//TODO: link up all of the road pieces
-			Waypoint [] targetInput; //we put our output here
+			Waypoint [] targetInput;
 			targetInput = sp.getInput();
-			Waypoint[] targetOutput; //we put our inputhere
+			Waypoint[] targetOutput;
 			targetOutput = sp.getOutput();
 
 			foreach (Waypoint wp in m_output) {
