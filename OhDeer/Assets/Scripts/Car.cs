@@ -15,8 +15,6 @@ public class Car : MonoBehaviour {
 	[SerializeField]
 	private float m_turnRate;
 
-	[SerializeField]
-	private float m_fieldOfView;
 
 	[SerializeField]
 	private Rigidbody2D m_rigidbody;
@@ -27,8 +25,6 @@ public class Car : MonoBehaviour {
 	[SerializeField]
 	private int m_health;
 
-	private float m_fieldOfViewAngle = 90;
-
 	private const float MAXIMUM_CAMERA_DISTANCE = 20.0f;
 
 	private const float CHECK_FOR_DESTRUCTION_TIME = 1.0f;
@@ -37,7 +33,10 @@ public class Car : MonoBehaviour {
 
 	private static Player m_player;
 
-	private enum currentState
+	[SerializeField]
+	private GameObject m_targetWaypoint;
+
+	public enum currentState
 	{
 		PURSUING_WAYPOINT,
 		TURNING_LEFT,
@@ -45,6 +44,14 @@ public class Car : MonoBehaviour {
 	}
 
 	private currentState m_curState = currentState.PURSUING_WAYPOINT;
+
+	public void SetTurning(currentState cs){
+		m_curState = cs;
+	}
+
+	public void SetFirstTarget(GameObject target){
+		m_targetWaypoint = target;
+	}
 
 	// Use this for initialization
 	void Start () {
@@ -66,24 +73,18 @@ public class Car : MonoBehaviour {
 		}
 	}
 
-	void OnTriggerStay2D(Collider2D other){
-		Vector3 direction = other.transform.position - transform.position;
-		float angle = Mathf.Atan2 (direction.x, direction.y)*Mathf.Rad2Deg - 90;
-		float fov;
-
-
-		if (other.tag == "Player") {
-			fov = m_fieldOfView;
-		} else {
-			fov = m_fieldOfView/4;
-		}
-		if (angle >= 0 && angle < fov) {
-			m_curState = currentState.TURNING_LEFT;
-		} else if (angle < 0 && angle > -fov) {
-			m_curState = currentState.TURNING_RIGHT;
-
-		} else {
-			m_curState = currentState.PURSUING_WAYPOINT;
+	void OnTriggerEnter2D(Collider2D other){
+		if (other.gameObject == m_targetWaypoint) {
+			if (m_targetWaypoint != null && m_targetWaypoint.GetComponent<Waypoint> ().GetNext () != null) {
+				GameObject next = m_targetWaypoint.GetComponent<Waypoint> ().GetNext ().gameObject;
+				if (next != null) {
+					m_targetWaypoint = next;
+				} else {
+					m_targetWaypoint = null;
+				}
+			}else {
+				m_targetWaypoint = null;
+			}
 		}
 	}
 
@@ -113,12 +114,24 @@ public class Car : MonoBehaviour {
 		//TODO: put in explosion mechanics
 		Destroy(this.gameObject);
 	}
-
+	[SerializeField]
+	float angle;
 	void FixedUpdate() {
 		switch (m_curState) {
 		case currentState.PURSUING_WAYPOINT:
-			if ((Vector3.Cross(new Vector3(m_rigidbody.velocity.x,m_rigidbody.velocity.y,0), m_transform.up)).magnitude < m_maximumSpeed) {
-				//TODO: Turn towards our next waypoint
+			if(m_targetWaypoint != null){
+
+				if ((Vector3.Cross (new Vector3 (m_rigidbody.velocity.x, m_rigidbody.velocity.y, 0), m_transform.up)).magnitude < m_maximumSpeed) {
+					//TODO: Turn towards our next waypoint
+					Vector3 direction = m_targetWaypoint.transform.position - transform.position;
+					angle = Mathf.Atan2 (direction.x, direction.y) * Mathf.Rad2Deg - 90;
+
+					if (angle >= 10) {
+						goto case currentState.TURNING_RIGHT;
+					} else if (angle < -10) {
+						goto case currentState.TURNING_LEFT;
+					} 
+				}
 			}
 			break;
 		case currentState.TURNING_LEFT:

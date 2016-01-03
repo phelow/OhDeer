@@ -23,7 +23,9 @@ public class RoadPiece : MonoBehaviour {
 				spawnPoint.Spawn ();
 			}
 		} else {
-			//TODO: add entry points here
+			foreach (SpawnPoint spawnPoint in m_spawnPoints) {
+				spawnPoint.CreateCarSpawns ();
+			}
 		}
 	}
 

@@ -16,6 +16,9 @@ public class SpawnPoint : MonoBehaviour {
 	[SerializeField]
 	private WaypointOrientation m_orientation;
 
+	[SerializeField]
+	private GameObject m_carSpawner;
+
 	//The waypoints orientation relative to it's parent roadpiece
 	public enum WaypointOrientation
 	{
@@ -38,6 +41,15 @@ public class SpawnPoint : MonoBehaviour {
 	{
 		return m_output;
 	}
+
+	public void CreateCarSpawns(){
+		foreach (Waypoint wp in m_input) {
+			GameObject go = GameObject.Instantiate (m_carSpawner);
+			go.transform.position = wp.transform.position;
+			go.GetComponent<CarSpawner> ().SetFirstTargetForSpawner (wp.gameObject);
+		}
+	}
+
 	// Use this for initialization
 	public void Spawn () {
 		Collider2D cols = Physics2D.OverlapCircle (new Vector2(transform.position.x,transform.position.y), .1f);
