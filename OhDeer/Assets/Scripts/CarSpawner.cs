@@ -8,7 +8,7 @@ public class CarSpawner : MonoBehaviour {
 	[SerializeField]
 	private GameObject[] cars;
 
-	private const float SPAWN_VARIANCE = 10.0f;
+	private const float SPAWN_VARIANCE = 2.0f;
 
 	[SerializeField]
 	private Transform m_spawnTransform;

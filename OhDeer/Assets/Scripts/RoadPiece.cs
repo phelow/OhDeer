@@ -12,8 +12,8 @@ public class RoadPiece : MonoBehaviour {
 	private const float MAX_HEIGHT = GRID_LENGTH * ROAD_WIDTH;
 	private const float MIN_HEIGHT = 0;
 
-	private const float MAX_WIDTH = GRID_LENGTH * ROAD_HEIGHT;
-	private const float MIN_WIDTH = 0;
+	public const float MAX_WIDTH = GRID_LENGTH * ROAD_HEIGHT;
+	public const float MIN_WIDTH = 0;
 
 	public void Instantiate()
 	{

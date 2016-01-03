@@ -46,6 +46,7 @@ public class SpawnPoint : MonoBehaviour {
 		foreach (Waypoint wp in m_input) {
 			GameObject go = GameObject.Instantiate (m_carSpawner);
 			go.transform.position = wp.transform.position;
+			go.transform.rotation = wp.transform.rotation;
 			go.GetComponent<CarSpawner> ().SetFirstTargetForSpawner (wp.gameObject);
 		}
 	}
