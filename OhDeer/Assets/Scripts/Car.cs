@@ -175,7 +175,7 @@ public class Car : MonoBehaviour {
 		}
 
 		if (m_breaking) {
-			m_rigidbody.velocity *= .9f;
+			m_rigidbody.velocity *= .85f;
 		}
 	}
 }
