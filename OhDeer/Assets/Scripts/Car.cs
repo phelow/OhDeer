@@ -41,6 +41,8 @@ public class Car : MonoBehaviour {
 	[SerializeField]
 	private List<GameObject> m_avoiding;
 
+	private bool m_givePoints = false;
+
 	[SerializeField]
 	private currentState m_curState = currentState.PURSUING_WAYPOINT;
 
@@ -122,14 +124,24 @@ public class Car : MonoBehaviour {
 		}
 	}
 
+	public void GivePoints(){
+		m_givePoints = true;
+	}
+
+	public bool GivesPoints()
+	{
+		return m_givePoints;
+	}
+
 	void OnCollisionEnter2D(Collision2D collision){
 		if (collision.gameObject.tag == "Player") {
 			// Kill the player
 			collision.gameObject.GetComponent<Player>().KillPlayer();
 		} else {
 			//TODO: inflict damage based off speed and award points accordingly
-			m_player.GainPoints(100);
-
+			if (m_givePoints) {
+				m_player.GainPoints (100);
+			}
 			m_health--;
 			if (m_health < 0) {
 				Explode ();
@@ -156,6 +168,7 @@ public class Car : MonoBehaviour {
 	[SerializeField]
 	float dir;
 	void FixedUpdate() {
+		bool turning = false;
 		if (m_avoiding.Count > 0) {
 			//calculate center of mass
 			Vector3 average = Vector3.zero;
@@ -186,6 +199,7 @@ public class Car : MonoBehaviour {
 
 				if (dir > .1 || dir < -.1) {
 					//apply torque accordingly
+					turning = true;
 					m_rigidbody.AddTorque ((dir < 0 ? 1 : -1) * m_turnRate);
 				}
 			}
@@ -201,7 +215,11 @@ public class Car : MonoBehaviour {
 		else
 		{
 			m_rigidbody.angularVelocity *= .9f;
-			m_rigidbody.AddForce (transform.up * m_acceleration);
+			if (turning) {
+				m_rigidbody.AddForce (transform.up * m_acceleration * .5f);
+			} else {
+				m_rigidbody.AddForce (transform.up * m_acceleration);
+			}
 		}
 	}
 }
