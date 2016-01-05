@@ -10,9 +10,6 @@ public class Car : MonoBehaviour {
 	private float m_acceleration;
 
 	[SerializeField]
-	private float m_breakPower;
-
-	[SerializeField]
 	private float m_turnRate;
 
 
@@ -25,16 +22,23 @@ public class Car : MonoBehaviour {
 	[SerializeField]
 	private int m_health;
 
+	private const float TURN_TOLERANCE = 0.3f;
+
 	private const float CHECK_FOR_DESTRUCTION_TIME = 1.0f;
 
 	private const float HEALTH_DIVISOR = 1.4f;
 
 	private const float DESTRUCTION_BUFFER = 20.0f;
 
+	private bool m_breaking = false;
+
 	private static Player m_player;
 
 	[SerializeField]
 	private GameObject m_targetWaypoint;
+
+	[SerializeField]
+	private currentState m_curState = currentState.PURSUING_WAYPOINT;
 
 	public enum currentState
 	{
@@ -43,8 +47,13 @@ public class Car : MonoBehaviour {
 		TURNING_RIGHT
 	}
 
-	[SerializeField]
-	private currentState m_curState = currentState.PURSUING_WAYPOINT;
+	public void StartBreaking(){
+		m_breaking = true;
+	}
+
+	public void StopBreaking(){
+		m_breaking = false;
+	}
 
 	public void SetTurning(currentState cs){
 		m_rigidbody.angularVelocity *= .9f;
@@ -78,18 +87,22 @@ public class Car : MonoBehaviour {
 			yield return new WaitForSeconds (CHECK_FOR_DESTRUCTION_TIME);
 		}
 	}
-
+	private const float MAX_WAYPOINT_COLLISION_DISTANCE = 3.0f;
 	void OnTriggerEnter2D(Collider2D other){
-		if (other.gameObject == m_targetWaypoint) {
-			if (m_targetWaypoint != null && m_targetWaypoint.GetComponent<Waypoint> ().GetNext () != null) {
-				GameObject next = m_targetWaypoint.GetComponent<Waypoint> ().GetNext ().gameObject;
-				if (next != null) {
-					m_targetWaypoint = next;
+		if (other.gameObject == m_targetWaypoint && Vector3.Distance(other.transform.position,transform.position) < MAX_WAYPOINT_COLLISION_DISTANCE) {
+			if (m_targetWaypoint != null) {
+
+				Waypoint nextPoint = m_targetWaypoint.GetComponent<Waypoint> ().GetNext ();
+				if (nextPoint != null) {
+					GameObject next = nextPoint.gameObject;
+					if (next != null) {
+						m_targetWaypoint = next;
+					} else {
+						m_targetWaypoint = null;
+					}
 				} else {
 					m_targetWaypoint = null;
 				}
-			}else {
-				m_targetWaypoint = null;
 			}
 		}
 	}
@@ -109,6 +122,10 @@ public class Car : MonoBehaviour {
 		}
 	}
 
+	public float GetSpeed(){
+		return m_rigidbody.velocity.magnitude;
+	}
+
 	void Explode()
 	{
 		//TODO: put in explosion mechanics
@@ -126,38 +143,39 @@ public class Car : MonoBehaviour {
 		switch (m_curState) {
 		case currentState.PURSUING_WAYPOINT:
 			if(m_targetWaypoint != null){
+				float dir = LeftRightTest (m_targetWaypoint.transform.position, transform.position,transform.forward,transform.up);
 
-				if ((Vector3.Cross (new Vector3 (m_rigidbody.velocity.x, m_rigidbody.velocity.y, 0), m_transform.up)).magnitude < m_maximumSpeed) {
-					//TODO: Turn towards our next waypoint
+				//right - positive, left - negative
 
-					float dir = LeftRightTest (m_targetWaypoint.transform.position, transform.position,transform.forward,transform.up);
-
-					//right - positive, left - negative
-
-					if (dir >= 0) {
-						m_rigidbody.AddTorque (-1 * m_turnRate);
-						m_rigidbody.velocity *= .95f;
-						m_rigidbody.AddForce (m_transform.up * m_acceleration);
-					} else if (dir < 0) {
-						m_rigidbody.AddTorque (  m_turnRate);
-						m_rigidbody.velocity *= .95f;
-						m_rigidbody.AddForce (m_transform.up * m_acceleration);
-					} 
+				if (dir >= TURN_TOLERANCE) {
+					m_rigidbody.AddTorque (-1 * m_turnRate);
+					m_rigidbody.velocity *= .95f;
+				} else if (dir <= -TURN_TOLERANCE) {
+					m_rigidbody.AddTorque (  m_turnRate);
+					m_rigidbody.velocity *= .95f;
 				}
 			}
 			break;
 		case currentState.TURNING_LEFT:
 			m_rigidbody.AddTorque ( m_turnRate);
-			m_rigidbody.velocity *= .95f;
-			m_rigidbody.AddForce (m_transform.up * m_acceleration);
+			m_rigidbody.AddForce (m_transform.up * m_acceleration * .1f);
 			break;
 		case currentState.TURNING_RIGHT:
 			m_rigidbody.AddTorque ( -1 * m_turnRate);
-			m_rigidbody.velocity *= .95f;
-			m_rigidbody.AddForce (m_transform.up * m_acceleration);
+			m_rigidbody.AddForce (m_transform.up * m_acceleration * .1f);
 			break;
 			
 		}
-		m_rigidbody.AddForce (m_transform.up * m_acceleration);
+		if (m_rigidbody.velocity.magnitude < m_maximumSpeed) {
+			//TODO: Turn towards our next waypoint
+
+			m_rigidbody.AddForce (m_transform.up * m_acceleration);
+		} else {
+			m_rigidbody.velocity *= .9f;
+		}
+
+		if (m_breaking) {
+			m_rigidbody.velocity *= .9f;
+		}
 	}
 }

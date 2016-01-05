@@ -22,8 +22,7 @@ public class GameOverMenu : MonoBehaviour {
 		if (PlayerPrefs.GetInt ("HighScore") < PlayerPrefs.GetInt ("YourScore")) {
 			PlayerPrefs.SetInt ("HighScore",PlayerPrefs.GetInt ("YourScore"));
 		}
-
-
+			
 		yield return new WaitForSeconds (2.0f);
 		SceneManager.LoadScene (Levels.MAIN_MENU);
 

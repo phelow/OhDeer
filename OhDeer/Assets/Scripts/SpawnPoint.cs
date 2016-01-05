@@ -90,14 +90,10 @@ public class SpawnPoint : MonoBehaviour {
 				wp.SetNext (m_input);
 			}
 		}
-
-
-
 	}
 
 	void OnDrawGizmos(){
 		Gizmos.color = Color.yellow;
 		Gizmos.DrawSphere (transform.position, 1);
 	}
-
 }

@@ -6,7 +6,7 @@ public class FollowPlayer : MonoBehaviour {
 	// Use this for initialization
 	void Start () {
 		m_target = transform.parent;
-		transform.parent = null;
+		transform.SetParent(null);
 	}
 	
 	// Update is called once per frame

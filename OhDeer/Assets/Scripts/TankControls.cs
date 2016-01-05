@@ -14,13 +14,8 @@ public class TankControls : MonoBehaviour {
 	[SerializeField]
 	private Rigidbody2D m_rigidbody;
 
-
 	[SerializeField]
 	private Transform m_transform;
-	// Use this for initialization
-	void Start () {
-	
-	}
 	
 	// Update is called once per frame
 	void Update () {

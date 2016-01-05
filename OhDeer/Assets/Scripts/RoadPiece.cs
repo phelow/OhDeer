@@ -20,7 +20,12 @@ public class RoadPiece : MonoBehaviour {
 		if (transform.position.x < MAX_HEIGHT && transform.position.x >= 0 && transform.position.y < MAX_WIDTH && transform.position.y >= MIN_WIDTH) {
 			//Instantiate road pieces at all of this road's spawn points
 			foreach (SpawnPoint spawnPoint in m_spawnPoints) {
+				try{
 				spawnPoint.Spawn ();
+				}
+				catch{
+					Debug.Log ("No Compatible Blocks");
+				}
 			}
 		} else {
 			foreach (SpawnPoint spawnPoint in m_spawnPoints) {
