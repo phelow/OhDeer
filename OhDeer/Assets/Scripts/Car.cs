@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
 
 public class Car : MonoBehaviour {
 
@@ -38,13 +39,26 @@ public class Car : MonoBehaviour {
 	private GameObject m_targetWaypoint;
 
 	[SerializeField]
+	private List<GameObject> m_avoiding;
+
+	[SerializeField]
 	private currentState m_curState = currentState.PURSUING_WAYPOINT;
 
 	public enum currentState
 	{
 		PURSUING_WAYPOINT,
-		TURNING_LEFT,
-		TURNING_RIGHT
+		AVOIDING_OBSTACLES,
+		PANICKING
+	}
+
+	public void AddAvoiding(GameObject go){
+		if (!m_avoiding.Contains (go)) {
+			m_avoiding.Add (go);
+		}
+	}
+
+	public void RemoveAvoiding(GameObject go){
+		m_avoiding.Remove (go);
 	}
 
 	public void StartBreaking(){
@@ -66,6 +80,7 @@ public class Car : MonoBehaviour {
 
 	// Use this for initialization
 	void Start () {
+		m_avoiding = new List<GameObject> ();
 		if (m_player == null) {
 			m_player = GameObject.FindGameObjectWithTag ("Player").GetComponent<Player>();
 		}
@@ -138,44 +153,55 @@ public class Car : MonoBehaviour {
 		Vector3 perpendicular = Vector3.Cross (forward, heading);
 		return Vector3.Dot (perpendicular, up);
 	}
-
+	[SerializeField]
+	float dir;
 	void FixedUpdate() {
-		switch (m_curState) {
-		case currentState.PURSUING_WAYPOINT:
-			if(m_targetWaypoint != null){
-				float dir = LeftRightTest (m_targetWaypoint.transform.position, transform.position,transform.forward,transform.up);
-
-				//right - positive, left - negative
-
-				if (dir >= TURN_TOLERANCE) {
-					m_rigidbody.AddTorque (-1 * m_turnRate);
-					m_rigidbody.velocity *= .95f;
-				} else if (dir <= -TURN_TOLERANCE) {
-					m_rigidbody.AddTorque (  m_turnRate);
-					m_rigidbody.velocity *= .95f;
+		if (m_avoiding.Count > 0) {
+			//calculate center of mass
+			Vector3 average = Vector3.zero;
+			bool removeNull = false;
+			foreach (GameObject go in m_avoiding) {
+				if (go == null) {
+					removeNull = true;
+				} else {
+					average += go.transform.position;
 				}
 			}
-			break;
-		case currentState.TURNING_LEFT:
-			m_rigidbody.AddTorque ( m_turnRate);
-			m_rigidbody.AddForce (m_transform.up * m_acceleration * .1f);
-			break;
-		case currentState.TURNING_RIGHT:
-			m_rigidbody.AddTorque ( -1 * m_turnRate);
-			m_rigidbody.AddForce (m_transform.up * m_acceleration * .1f);
-			break;
-			
-		}
-		if (m_rigidbody.velocity.magnitude < m_maximumSpeed) {
-			//TODO: Turn towards our next waypoint
 
-			m_rigidbody.AddForce (m_transform.up * m_acceleration);
-		} else {
-			m_rigidbody.velocity *= .9f;
+			if (removeNull) {
+				RemoveAvoiding (null);
+			}
+
+			//determine if we are to the left or right of the center mass
+			dir = LeftRightTest(average, transform.position,transform.forward,transform.up);
+
+
+			//apply torque accordingly
+			m_rigidbody.AddTorque((dir < 0 ? -1 : 1) * m_turnRate);
+		}
+		else
+		{
+			if (m_targetWaypoint != null) {
+				dir = LeftRightTest (m_targetWaypoint.transform.position, transform.position, transform.forward, transform.up);
+
+				if (dir > .1 || dir < -.1) {
+					//apply torque accordingly
+					m_rigidbody.AddTorque ((dir < 0 ? 1 : -1) * m_turnRate);
+				}
+			}
+		}
+		// Apply force
+		if (m_rigidbody.velocity.magnitude > m_maximumSpeed) {
+			m_rigidbody.velocity *= .7f;
 		}
 
 		if (m_breaking) {
-			m_rigidbody.velocity *= .85f;
+			m_rigidbody.velocity *= .98f;
+		}
+		else
+		{
+			m_rigidbody.angularVelocity *= .9f;
+			m_rigidbody.AddForce (transform.up * m_acceleration);
 		}
 	}
 }
