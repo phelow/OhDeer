@@ -5,7 +5,7 @@ public class RoadPiece : MonoBehaviour {
 	[SerializeField]
 	private SpawnPoint [] m_spawnPoints;
 
-	private const int GRID_LENGTH = 5;
+	private const int GRID_LENGTH = 10;
 	private const float ROAD_WIDTH = 10.22f;
 	private const float ROAD_HEIGHT = 10.22f;
 

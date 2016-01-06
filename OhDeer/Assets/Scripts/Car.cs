@@ -201,6 +201,7 @@ public class Car : MonoBehaviour {
 
 		m_rigidbody.angularVelocity *= .9f;
 		if (turning) {
+			m_rigidbody.velocity *= .97f;
 			m_rigidbody.AddForce (transform.up * m_acceleration * .5f);
 		} else {
 			m_rigidbody.AddForce (transform.up * m_acceleration);
