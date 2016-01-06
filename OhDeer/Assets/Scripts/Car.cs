@@ -31,8 +31,6 @@ public class Car : MonoBehaviour {
 
 	private const float DESTRUCTION_BUFFER = 20.0f;
 
-	private bool m_breaking = false;
-
 	private static Player m_player;
 
 	[SerializeField]
@@ -61,14 +59,6 @@ public class Car : MonoBehaviour {
 
 	public void RemoveAvoiding(GameObject go){
 		m_avoiding.Remove (go);
-	}
-
-	public void StartBreaking(){
-		m_breaking = true;
-	}
-
-	public void StopBreaking(){
-		m_breaking = false;
 	}
 
 	public void SetTurning(currentState cs){
@@ -165,9 +155,8 @@ public class Car : MonoBehaviour {
 		Vector3 perpendicular = Vector3.Cross (forward, heading);
 		return Vector3.Dot (perpendicular, up);
 	}
-	[SerializeField]
-	float dir;
 	void FixedUpdate() {
+		float dir;
 		bool turning = false;
 		if (m_avoiding.Count > 0) {
 			//calculate center of mass
@@ -206,20 +195,16 @@ public class Car : MonoBehaviour {
 		}
 		// Apply force
 		if (m_rigidbody.velocity.magnitude > m_maximumSpeed) {
-			m_rigidbody.velocity *= .7f;
-		}
-
-		if (m_breaking) {
 			m_rigidbody.velocity *= .98f;
 		}
-		else
-		{
-			m_rigidbody.angularVelocity *= .9f;
-			if (turning) {
-				m_rigidbody.AddForce (transform.up * m_acceleration * .5f);
-			} else {
-				m_rigidbody.AddForce (transform.up * m_acceleration);
-			}
+
+
+		m_rigidbody.angularVelocity *= .9f;
+		if (turning) {
+			m_rigidbody.AddForce (transform.up * m_acceleration * .5f);
+		} else {
+			m_rigidbody.AddForce (transform.up * m_acceleration);
 		}
+
 	}
 }

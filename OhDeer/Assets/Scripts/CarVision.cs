@@ -24,7 +24,6 @@ public class CarVision : MonoBehaviour {
 	}
 
 	void OnTriggerStay2D(Collider2D other){
-		m_cv.StopBreaking ();
 		if ((other.tag == "Player")) {
 			m_cv.AddAvoiding (other.gameObject);
 			m_cv.GivePoints ();
@@ -37,7 +36,6 @@ public class CarVision : MonoBehaviour {
 			if (other.GetComponent<Car>().GivesPoints ()) {
 				m_cv.GivePoints ();
 			}
-			m_cv.StartBreaking ();
 		}
 	}
 }
