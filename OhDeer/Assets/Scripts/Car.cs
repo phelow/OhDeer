@@ -31,6 +31,8 @@ public class Car : MonoBehaviour {
 
 	private const float DESTRUCTION_BUFFER = 20.0f;
 
+	private const float MAX_WAYPOINT_COLLISION_DISTANCE = 3.0f;
+
 	private static Player m_player;
 
 	[SerializeField]
@@ -94,21 +96,20 @@ public class Car : MonoBehaviour {
 			yield return new WaitForSeconds (CHECK_FOR_DESTRUCTION_TIME);
 		}
 	}
-	private const float MAX_WAYPOINT_COLLISION_DISTANCE = 3.0f;
+
 	void OnTriggerEnter2D(Collider2D other){
 		if (other.gameObject == m_targetWaypoint && Vector3.Distance(other.transform.position,transform.position) < MAX_WAYPOINT_COLLISION_DISTANCE) {
 			if (m_targetWaypoint != null) {
-
 				Waypoint nextPoint = m_targetWaypoint.GetComponent<Waypoint> ().GetNext ();
 				if (nextPoint != null) {
 					GameObject next = nextPoint.gameObject;
 					if (next != null) {
 						m_targetWaypoint = next;
 					} else {
-						m_targetWaypoint = null;
+						Destroy (this.gameObject);
 					}
 				} else {
-					m_targetWaypoint = null;
+					Destroy (this.gameObject);
 				}
 			}
 		}

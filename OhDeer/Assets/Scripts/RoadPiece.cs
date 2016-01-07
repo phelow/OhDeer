@@ -5,7 +5,7 @@ public class RoadPiece : MonoBehaviour {
 	[SerializeField]
 	private SpawnPoint [] m_spawnPoints;
 
-	private const int GRID_LENGTH = 10;
+	private const int GRID_LENGTH = 4;
 	private const float ROAD_WIDTH = 10.22f;
 	private const float ROAD_HEIGHT = 10.22f;
 
@@ -20,18 +20,27 @@ public class RoadPiece : MonoBehaviour {
 		if (transform.position.x < MAX_HEIGHT && transform.position.x >= 0 && transform.position.y < MAX_WIDTH && transform.position.y >= MIN_WIDTH) {
 			//Instantiate road pieces at all of this road's spawn points
 			foreach (SpawnPoint spawnPoint in m_spawnPoints) {
-				try{
-				spawnPoint.Spawn ();
+				
+				if(!spawnPoint.Spawn ()){
+					spawnPoint.CreateCarSpawns ();
 				}
-				catch{
-					Debug.Log ("No Compatible Blocks");
-				}
+				
 			}
 		} else {
 			foreach (SpawnPoint spawnPoint in m_spawnPoints) {
 				spawnPoint.CreateCarSpawns ();
 			}
 		}
+	}
+
+	public bool UnconnectedSpawnPointsOpen()
+	{
+		foreach (SpawnPoint spawnPoint in m_spawnPoints) {
+			if (!spawnPoint.IsLinked () && !spawnPoint.IsClear ()) {
+				return false;
+			}
+		}
+		return true;
 	}
 
 	public SpawnPoint GetSpawnPoint(SpawnPoint.WaypointOrientation WaypointOrientation){
