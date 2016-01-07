@@ -15,6 +15,10 @@ public class Waypoint : MonoBehaviour {
 	}
 
 	public Waypoint GetNext(){
-		return m_nextWaypoints [Random.Range (0, m_nextWaypoints.Length)];
+		if (m_nextWaypoints.Length == 0) {
+			return null;
+		} else {
+			return m_nextWaypoints [Random.Range (0, m_nextWaypoints.Length)];
+		}
 	}
 }
