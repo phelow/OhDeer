@@ -15,6 +15,9 @@ public class RoadPiece : MonoBehaviour {
 	public const float MAX_WIDTH = GRID_LENGTH * ROAD_HEIGHT;
 	public const float MIN_WIDTH = 0;
 
+	public SpawnPoint [] SpawnPoints(){
+		return m_spawnPoints;
+	}
 	public void Instantiate()
 	{
 		if (transform.position.x < MAX_HEIGHT && transform.position.x >= 0 && transform.position.y < MAX_WIDTH && transform.position.y >= MIN_WIDTH) {
@@ -33,15 +36,6 @@ public class RoadPiece : MonoBehaviour {
 		}
 	}
 
-	public bool UnconnectedSpawnPointsOpen()
-	{
-		foreach (SpawnPoint spawnPoint in m_spawnPoints) {
-			if (!spawnPoint.IsLinked () && !spawnPoint.IsClear ()) {
-				return false;
-			}
-		}
-		return true;
-	}
 
 	public SpawnPoint GetSpawnPoint(SpawnPoint.WaypointOrientation WaypointOrientation){
 		foreach (SpawnPoint spawnPoint in m_spawnPoints) {

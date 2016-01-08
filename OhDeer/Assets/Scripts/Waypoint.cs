@@ -11,7 +11,16 @@ public class Waypoint : MonoBehaviour {
 
 	public void SetNext(Waypoint [] next)
 	{
-		m_nextWaypoints = next;
+		Waypoint [] tWayPoints = new Waypoint[m_nextWaypoints.Length + next.Length];
+		int i;
+		for (i = 0; i < m_nextWaypoints.Length; i++) {
+			tWayPoints [i] = m_nextWaypoints [i];
+		}
+
+		for (i = m_nextWaypoints.Length; i < m_nextWaypoints.Length+next.Length; i++) {
+			tWayPoints [i] = next [i - m_nextWaypoints.Length];
+		}
+		m_nextWaypoints = tWayPoints;
 	}
 
 	public Waypoint GetNext(){
