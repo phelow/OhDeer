@@ -16,7 +16,19 @@ public class TankControls : MonoBehaviour {
 
 	[SerializeField]
 	private Transform m_transform;
-	
+
+	void Start()
+	{
+		StartCoroutine (CheckBoundaries ());
+	}
+
+	private IEnumerator CheckBoundaries(){
+		while (true) {
+			//Teleport the player closer to the nearest road if they've gone to far away from it
+			yield return new WaitForSeconds(2.0f);
+		}
+	}
+
 	// Update is called once per frame
 	void Update () {
 		if (Input.GetKey (KeyCode.LeftArrow) || Input.GetKey (KeyCode.A)) {
