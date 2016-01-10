@@ -63,9 +63,11 @@ public class TankControls : MonoBehaviour {
 		} else if (m_leftDown) {
 			// rotate to the left
 			m_rigidbody.AddTorque(ROTATION_AMOUNT);
+			m_rigidbody.velocity *= .9f;
 		} else if (m_rightDown) {
 			// rotate to the right
 			m_rigidbody.AddTorque(-ROTATION_AMOUNT);
+			m_rigidbody.velocity *= .9f;
 		}
 
 		// Move vertically

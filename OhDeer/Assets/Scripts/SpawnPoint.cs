@@ -154,7 +154,6 @@ public class SpawnPoint : MonoBehaviour {
 			}
 			return null;
 		} else {
-			Debug.Log ("No piece could be placed");
 			return null;
 		}
 	}
@@ -166,10 +165,10 @@ public class SpawnPoint : MonoBehaviour {
 		RoadPiece TopRp = null;
 		foreach (Collider2D cd in cols) {
 			RoadPiece trp = cd.GetComponent<RoadPiece> ();
-			if (trp == null) {
+			if (trp == null && cd.transform.parent != null) {
 				trp = cd.transform.parent.GetComponentInChildren<RoadPiece> ();
 			}
-			if (trp == null) {
+			if (trp == null && cd.transform.parent != null) {
 				trp = cd.transform.parent.GetComponent<RoadPiece> ();
 			}
 
@@ -191,10 +190,10 @@ public class SpawnPoint : MonoBehaviour {
 		RoadPiece LeftRp = null;
 		foreach (Collider2D cd in cols) {
 			RoadPiece trp = cd.GetComponent<RoadPiece> ();
-			if (trp == null) {
+			if (trp == null && cd.transform.parent != null) {
 				trp = cd.transform.parent.GetComponentInChildren<RoadPiece> ();
 			}
-			if (trp == null) {
+			if (trp == null && cd.transform.parent != null) {
 				trp = cd.transform.parent.GetComponent<RoadPiece> ();
 			}
 			if (trp != null) {
@@ -214,10 +213,10 @@ public class SpawnPoint : MonoBehaviour {
 		RoadPiece RightRp = null;
 		foreach (Collider2D cd in cols) {
 			RoadPiece trp = cd.GetComponent<RoadPiece> ();
-			if (trp == null) {
+			if (trp == null && cd.transform.parent != null) {
 				trp = cd.transform.parent.GetComponentInChildren<RoadPiece> ();
 			}
-			if (trp == null) {
+			if (trp == null && cd.transform.parent != null) {
 				trp = cd.transform.parent.GetComponent<RoadPiece> ();
 			}
 			if (trp != null) {
@@ -237,10 +236,10 @@ public class SpawnPoint : MonoBehaviour {
 		RoadPiece BottomRp = null;
 		foreach (Collider2D cd in cols) {
 			RoadPiece trp = cd.GetComponent<RoadPiece> ();
-			if (trp == null) {
+			if (trp == null && cd.transform.parent != null ) {
 				trp = cd.transform.parent.GetComponentInChildren<RoadPiece> ();
 			}
-			if (trp == null) {
+			if (trp == null && cd.transform.parent != null) {
 				trp = cd.transform.parent.GetComponent<RoadPiece> ();
 			}
 			if (trp != null) {
