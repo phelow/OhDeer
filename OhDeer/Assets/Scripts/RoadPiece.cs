@@ -52,13 +52,13 @@ public class RoadPiece : MonoBehaviour {
 				AddNext(spawnPoint.Spawn (this));
 				
 			}
+			StartCoroutine (Regenerate ());
 		} else {
 			foreach (SpawnPoint spawnPoint in m_spawnPoints) {
 				spawnPoint.CreateCarSpawns ();
 			}
 			m_terminates = true;
 		}
-		StartCoroutine (Regenerate ());
 	}
 
 	public bool Terminates(){
@@ -87,8 +87,8 @@ public class RoadPiece : MonoBehaviour {
 	}
 	private IEnumerator Regenerate(){
 		int generations = 0;
-		yield return new WaitForSeconds (1.1f);
-		while((m_terminates == false || m_allLinked == false) && generations < 5){
+		while((m_terminates == false || m_allLinked == false) && generations < 10){
+			yield return new WaitForSeconds (.01f + generations * Random.Range(.1f,0.5f));
 			if (transform.position.x < MAX_HEIGHT && transform.position.x >= 0 && transform.position.y < MAX_WIDTH && transform.position.y >= MIN_WIDTH) {
 				
 			} else {
@@ -102,7 +102,7 @@ public class RoadPiece : MonoBehaviour {
 				}
 			}
 
-			if (regenerate && generations <3) {
+			if (regenerate && generations <7) {
 				foreach (RoadPiece rp in next) {
 					if (rp != null) {
 						rp.KillMe ();
@@ -118,7 +118,6 @@ public class RoadPiece : MonoBehaviour {
 				}
 			}
 			generations++;
-			yield return new WaitForSeconds (.01f + generations * Random.Range(.1f,0.5f));
 		}
 		foreach (SpawnPoint sp in m_spawnPoints) {
 			if (sp.IsLinked () == false) {
