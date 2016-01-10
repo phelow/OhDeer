@@ -6,7 +6,7 @@ public class RoadPiece : MonoBehaviour {
 	[SerializeField]
 	private SpawnPoint [] m_spawnPoints;
 
-	private const int GRID_LENGTH = 3;
+	private const int GRID_LENGTH = 5;
 	private const float ROAD_WIDTH = 10.22f;
 	private const float ROAD_HEIGHT = 10.22f;
 
@@ -17,6 +17,8 @@ public class RoadPiece : MonoBehaviour {
 	public const float MIN_WIDTH = 0;
 
 	private List<Vector3> gizmos = new List<Vector3>();
+
+	RoadPiece m_previous;
 
 	[SerializeField]
 	private List<RoadPiece> next;
@@ -38,15 +40,16 @@ public class RoadPiece : MonoBehaviour {
 	public SpawnPoint [] SpawnPoints(){
 		return m_spawnPoints;
 	}
-	public void Instantiate()
+	public void Instantiate(RoadPiece prev)
 	{
+		m_previous = prev;
 		next = new List<RoadPiece> ();
 		if (transform.position.x < MAX_HEIGHT && transform.position.x >= 0 && transform.position.y < MAX_WIDTH && transform.position.y >= MIN_WIDTH) {
 			m_locked = true;
 			//Instantiate road pieces at all of this road's spawn points
 			foreach (SpawnPoint spawnPoint in m_spawnPoints) {
 				
-				AddNext(spawnPoint.Spawn ());
+				AddNext(spawnPoint.Spawn (this));
 				
 			}
 		} else {
@@ -70,10 +73,22 @@ public class RoadPiece : MonoBehaviour {
 		return m_terminates;
 	}
 
+	private bool AllSpawnPointsLinked(){
+		bool allLinked = true;
+		foreach (SpawnPoint sp in m_spawnPoints) {
+			if (sp.IsLinked () == false) {
+				allLinked = false;
+			}
+		}
+		return allLinked;
+	}
+	public void StartRegeneration(){
+		StartCoroutine(Regenerate());
+	}
 	private IEnumerator Regenerate(){
 		int generations = 0;
 		yield return new WaitForSeconds (1.1f);
-		while(m_terminates == false || m_allLinked == false && generations < 5){
+		while((m_terminates == false || m_allLinked == false) && generations < 5){
 			if (transform.position.x < MAX_HEIGHT && transform.position.x >= 0 && transform.position.y < MAX_WIDTH && transform.position.y >= MIN_WIDTH) {
 				
 			} else {
@@ -97,15 +112,22 @@ public class RoadPiece : MonoBehaviour {
 				//Instantiate ();
 			}
 
-			m_allLinked = true;
 			foreach (SpawnPoint sp in m_spawnPoints) {
 				if (sp.IsLinked () == false) {
-					AddNext (sp.Spawn ());
-					m_allLinked = false;
+					AddNext (sp.Spawn (this));
 				}
 			}
 			generations++;
-			yield return new WaitForSeconds (.01f);
+			yield return new WaitForSeconds (.01f + generations * Random.Range(.1f,0.5f));
+		}
+		foreach (SpawnPoint sp in m_spawnPoints) {
+			if (sp.IsLinked () == false) {
+				AddNext (sp.Spawn (this));
+				m_allLinked = false;
+			}
+		}
+		if (m_allLinked == false && m_previous != null) {
+			m_previous.StartRegeneration ();
 		}
 	}
 

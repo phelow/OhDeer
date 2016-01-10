@@ -8,6 +8,6 @@ public class StartingPoint : MonoBehaviour {
 	[SerializeField]
 	RoadPiece m_rp;
 	void Start () {
-		m_rp.Instantiate ();
+		m_rp.Instantiate (null);
 	}
 }

@@ -10,6 +10,8 @@ public class SpawnPoint : MonoBehaviour {
 
 	private GameObject [] m_OriginalViableRoadPieces;
 
+	private const float RADAR_CHECK_SIZE = 2.0f;
+
 	[SerializeField]
 	private Waypoint [] m_output;
 
@@ -72,7 +74,7 @@ public class SpawnPoint : MonoBehaviour {
 		}
 	}
 
-	public RoadPiece PlacePiece(){
+	public RoadPiece PlacePiece(RoadPiece previous){
 		if (m_OriginalViableRoadPieces == null) {
 			m_OriginalViableRoadPieces =  m_viableRoadPieces;
 		}
@@ -127,7 +129,7 @@ public class SpawnPoint : MonoBehaviour {
 				foreach (Waypoint wp in targetOutput) {
 					wp.SetNext (m_input);
 				}
-				go.GetComponent<RoadPiece> ().Instantiate ();
+				go.GetComponent<RoadPiece> ().Instantiate (previous);
 
 				bool works = true;
 
@@ -156,7 +158,7 @@ public class SpawnPoint : MonoBehaviour {
 			return null;
 		}
 	}
-	private const float RADAR_CHECK_SIZE = 2.0f;
+
 	public bool ZoneCheck (RoadPiece rp){
 		Collider2D [] cols = Physics2D.OverlapCircleAll (new Vector2(rp.transform.position.x,rp.transform.position.y + 10.2f), RADAR_CHECK_SIZE);
 		rp.AddGizmo(new Vector3(rp.transform.position.x,rp.transform.position.y + 10.2f,0));
@@ -396,9 +398,9 @@ public class SpawnPoint : MonoBehaviour {
 	}
 
 	// Use this for initialization
-	public RoadPiece Spawn () {
+	public RoadPiece Spawn (RoadPiece previous) {
 		if (IsClear() ) {
-			return PlacePiece();
+			return PlacePiece(previous);
 		} else {
 			return null;
 		}
