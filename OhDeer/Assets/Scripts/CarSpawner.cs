@@ -35,6 +35,7 @@ public class CarSpawner : MonoBehaviour {
 		while (true) {
 			GameObject car = GameObject.Instantiate (cars [Random.Range (0, cars.Length)]);
 			car.transform.position = m_spawnTransform.position;
+			car.transform.parent = transform;
 			car.transform.rotation = m_spawnTransform.rotation;
 			car.GetComponent<Car> ().SetFirstTarget (m_firstTarget);
 			yield return new WaitForSeconds (Random.Range (Mathf.Max (MIN_SPAWN_TIME, m_spawnTime - SPAWN_VARIANCE), m_spawnTime + SPAWN_VARIANCE));

@@ -8,6 +8,8 @@ public class SpawnPoint : MonoBehaviour {
 	[SerializeField]
 	private GameObject [] m_viableRoadPieces;
 
+	private GameObject [] m_OriginalViableRoadPieces;
+
 	[SerializeField]
 	private Waypoint [] m_output;
 
@@ -20,7 +22,7 @@ public class SpawnPoint : MonoBehaviour {
 	[SerializeField]
 	private GameObject m_carSpawner;
 
-	private bool m_linked = false;
+	private SpawnPoint m_linked = null;
 
 	//The waypoints orientation relative to it's parent roadpiece
 	public enum WaypointOrientation
@@ -36,14 +38,14 @@ public class SpawnPoint : MonoBehaviour {
 	}
 
 	public void Unlink(){
-		m_linked = false;
+		m_linked = null;
 	}
-	public void Link(){
-		m_linked = true;
+	public void Link(SpawnPoint target){
+		m_linked = target;
 	}
 
 	public bool IsLinked(){
-		return m_linked;
+		return m_linked != null;
 	}
 
 	public WaypointOrientation GetOrientation(){
@@ -65,11 +67,17 @@ public class SpawnPoint : MonoBehaviour {
 			GameObject go = GameObject.Instantiate (m_carSpawner);
 			go.transform.position = wp.transform.position;
 			go.transform.rotation = wp.transform.rotation;
+			go.transform.parent = transform;
 			go.GetComponent<CarSpawner> ().SetFirstTargetForSpawner (wp.gameObject);
 		}
 	}
 
-	public bool PlacePiece(){
+	public RoadPiece PlacePiece(){
+		if (m_OriginalViableRoadPieces == null) {
+			m_OriginalViableRoadPieces =  m_viableRoadPieces;
+		}
+
+		m_viableRoadPieces = m_OriginalViableRoadPieces;
 		List<GameObject> instantiables = AvailablePieceThatFits ();
 
 		if (instantiables != null) {
@@ -108,8 +116,8 @@ public class SpawnPoint : MonoBehaviour {
 				targetInput = sp.getInput ();
 				Waypoint[] targetOutput;
 				targetOutput = sp.getOutput ();
-				Link ();
-				sp.Link ();
+				Link (sp);
+				sp.Link (this);
 
 
 				foreach (Waypoint wp in m_output) {
@@ -136,16 +144,16 @@ public class SpawnPoint : MonoBehaviour {
 				}
 
 				if (works == false) {
-					Destroy (go);
+					rp.KillMe ();
 				} else {
 					pieceNotPlaced = false;
+					return rp;
 				}
 			}
-
-			return true;
+			return null;
 		} else {
 			Debug.Log ("No piece could be placed");
-			return false;
+			return null;
 		}
 	}
 	private const float RADAR_CHECK_SIZE = 2.0f;
@@ -302,8 +310,8 @@ public class SpawnPoint : MonoBehaviour {
 		foreach (Waypoint wp in targetOutput) {
 			wp.SetNext (m_input);
 		}
-		Link ();
-		sp.Link ();
+		Link (sp);
+		sp.Link (this);
 
 		return true;
 	}
@@ -388,11 +396,11 @@ public class SpawnPoint : MonoBehaviour {
 	}
 
 	// Use this for initialization
-	public bool Spawn () {
+	public RoadPiece Spawn () {
 		if (IsClear() ) {
 			return PlacePiece();
 		} else {
-			return false;
+			return null;
 		}
 	}
 
