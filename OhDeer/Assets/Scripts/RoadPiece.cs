@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
 
 public class RoadPiece : MonoBehaviour {
 	[SerializeField]
@@ -14,6 +15,12 @@ public class RoadPiece : MonoBehaviour {
 
 	public const float MAX_WIDTH = GRID_LENGTH * ROAD_HEIGHT;
 	public const float MIN_WIDTH = 0;
+
+	private List<Vector3> gizmos = new List<Vector3>();
+
+	public void AddGizmo(Vector3 vec){
+		gizmos.Add (vec);
+	}
 
 	public SpawnPoint [] SpawnPoints(){
 		return m_spawnPoints;
@@ -45,4 +52,12 @@ public class RoadPiece : MonoBehaviour {
 		}
 		return null;
 	}
+
+	public void OnDrawGizmos(){
+		foreach (Vector3 gizmo in gizmos) {
+			Gizmos.color = Color.green;
+			Gizmos.DrawCube (gizmo, Vector3.one);
+		}
+	}
+		
 }

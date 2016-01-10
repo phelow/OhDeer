@@ -70,69 +70,184 @@ public class SpawnPoint : MonoBehaviour {
 	}
 
 	public bool PlacePiece(){
-		GameObject inst = AvailablePieceThatFits ();
+		List<GameObject> instantiables = AvailablePieceThatFits ();
 
-		if (inst != null) {
-			GameObject go = GameObject.Instantiate (inst);
-			go.transform.position = transform.position;
+		if (instantiables != null) {
+			bool pieceNotPlaced = true;
+			while (pieceNotPlaced && instantiables.Count > 0) {
+				//TODO, prevent double selection
+				int choice = Random.Range(0,instantiables.Count);
+				GameObject go = GameObject.Instantiate (instantiables[choice]);
+				instantiables.RemoveAt (choice);
 
-			WaypointOrientation oppositeOrientation = WaypointOrientation.Bottom;
-			switch (m_orientation) {
-			case WaypointOrientation.Bottom:
-				oppositeOrientation = WaypointOrientation.Top;
-				break;
-			case WaypointOrientation.Left:
-				oppositeOrientation = WaypointOrientation.Right;
-				break;
-			case WaypointOrientation.Right:
-				oppositeOrientation = WaypointOrientation.Left;
-				break;
-			case WaypointOrientation.Top:
-				oppositeOrientation = WaypointOrientation.Bottom;
-				break;
-			}
+				go.transform.position = transform.position;
 
-			//TODO: fix this to accomodate placing pieces with multiple connections
+				WaypointOrientation oppositeOrientation = WaypointOrientation.Bottom;
+				switch (m_orientation) {
+				case WaypointOrientation.Bottom:
+					oppositeOrientation = WaypointOrientation.Top;
+					break;
+				case WaypointOrientation.Left:
+					oppositeOrientation = WaypointOrientation.Right;
+					break;
+				case WaypointOrientation.Right:
+					oppositeOrientation = WaypointOrientation.Left;
+					break;
+				case WaypointOrientation.Top:
+					oppositeOrientation = WaypointOrientation.Bottom;
+					break;
+				}
 
-			RoadPiece rp = go.GetComponent<RoadPiece> ();
-			SpawnPoint sp = rp.GetSpawnPoint (oppositeOrientation);
-			//TODO: link up all of the road pieces
+				//TODO: fix this to accomodate placing pieces with multiple connections
 
-			Waypoint[] targetInput;
-			targetInput = sp.getInput ();
-			Waypoint[] targetOutput;
-			targetOutput = sp.getOutput ();
-			Link ();
-			sp.Link ();
+				RoadPiece rp = go.GetComponent<RoadPiece> ();
+				SpawnPoint sp = rp.GetSpawnPoint (oppositeOrientation);
+				//TODO: link up all of the road pieces
+
+				Waypoint[] targetInput;
+				targetInput = sp.getInput ();
+				Waypoint[] targetOutput;
+				targetOutput = sp.getOutput ();
+				Link ();
+				sp.Link ();
 
 
-			foreach (Waypoint wp in m_output) {
-				wp.SetNext (targetInput);
-			}
+				foreach (Waypoint wp in m_output) {
+					wp.SetNext (targetInput);
+				}
 
-			foreach (Waypoint wp in targetOutput) {
-				wp.SetNext (m_input);
-			}
-			go.GetComponent<RoadPiece> ().Instantiate ();
+				foreach (Waypoint wp in targetOutput) {
+					wp.SetNext (m_input);
+				}
+				go.GetComponent<RoadPiece> ().Instantiate ();
 
-			bool works = true;
+				bool works = true;
 
-			foreach(SpawnPoint targetSpawnPoints in rp.SpawnPoints())
-			{
-				if (targetSpawnPoints.IsColliding()) {
-					works = targetSpawnPoints.SetConnections();
+				foreach (SpawnPoint targetSpawnPoints in rp.SpawnPoints()) {
+					if (targetSpawnPoints.IsColliding ()) {
+						if (targetSpawnPoints.SetConnections () == false) {
+							works = false;
+						}
+					}
+				}
+
+				if (ZoneCheck (rp) == false) {
+					works = false;
+				}
+
+				if (works == false) {
+					Destroy (go);
+				} else {
+					pieceNotPlaced = false;
 				}
 			}
-			if (works == false) {
-				Destroy (this.gameObject);
-				return false;
-			}
-
 
 			return true;
 		} else {
+			Debug.Log ("No piece could be placed");
 			return false;
 		}
+	}
+	private const float RADAR_CHECK_SIZE = 2.0f;
+	public bool ZoneCheck (RoadPiece rp){
+		Collider2D [] cols = Physics2D.OverlapCircleAll (new Vector2(rp.transform.position.x,rp.transform.position.y + 10.2f), RADAR_CHECK_SIZE);
+		rp.AddGizmo(new Vector3(rp.transform.position.x,rp.transform.position.y + 10.2f,0));
+
+		RoadPiece TopRp = null;
+		foreach (Collider2D cd in cols) {
+			RoadPiece trp = cd.GetComponent<RoadPiece> ();
+			if (trp == null) {
+				trp = cd.transform.parent.GetComponentInChildren<RoadPiece> ();
+			}
+			if (trp == null) {
+				trp = cd.transform.parent.GetComponent<RoadPiece> ();
+			}
+
+			if (trp != null) {
+				TopRp = trp;
+			}
+		}
+
+		if (TopRp != null) {
+			if (TopRp.GetSpawnPoint (WaypointOrientation.Bottom) != null && rp.GetSpawnPoint (WaypointOrientation.Top) == null) {
+				return false;
+			} else if (TopRp.GetSpawnPoint (WaypointOrientation.Bottom) == null && rp.GetSpawnPoint (WaypointOrientation.Top) != null) {
+				return false;
+			}
+		}
+
+		cols = Physics2D.OverlapCircleAll (new Vector2(rp.transform.position.x-10.2f,rp.transform.position.y), RADAR_CHECK_SIZE);
+		rp.AddGizmo(new Vector3(rp.transform.position.x-10.2f,rp.transform.position.y,0));
+		RoadPiece LeftRp = null;
+		foreach (Collider2D cd in cols) {
+			RoadPiece trp = cd.GetComponent<RoadPiece> ();
+			if (trp == null) {
+				trp = cd.transform.parent.GetComponentInChildren<RoadPiece> ();
+			}
+			if (trp == null) {
+				trp = cd.transform.parent.GetComponent<RoadPiece> ();
+			}
+			if (trp != null) {
+				LeftRp = trp;
+			}
+		}
+
+		if (LeftRp != null) {
+			if (LeftRp.GetSpawnPoint (WaypointOrientation.Right) != null && rp.GetSpawnPoint (WaypointOrientation.Left) == null) {
+				return false;
+			} else if (LeftRp.GetSpawnPoint (WaypointOrientation.Right) == null && rp.GetSpawnPoint (WaypointOrientation.Left) != null) {
+				return false;
+			}
+		}
+		cols = Physics2D.OverlapCircleAll (new Vector2(rp.transform.position.x + 10.2f,rp.transform.position.y), RADAR_CHECK_SIZE);
+		rp.AddGizmo(new Vector3(rp.transform.position.x+10.2f,rp.transform.position.y,0));
+		RoadPiece RightRp = null;
+		foreach (Collider2D cd in cols) {
+			RoadPiece trp = cd.GetComponent<RoadPiece> ();
+			if (trp == null) {
+				trp = cd.transform.parent.GetComponentInChildren<RoadPiece> ();
+			}
+			if (trp == null) {
+				trp = cd.transform.parent.GetComponent<RoadPiece> ();
+			}
+			if (trp != null) {
+				RightRp = trp;
+			}
+		}
+
+		if (RightRp != null) {
+			if (RightRp.GetSpawnPoint (WaypointOrientation.Left) != null && rp.GetSpawnPoint (WaypointOrientation.Right) == null) {
+				return false;
+			} else if(RightRp.GetSpawnPoint (WaypointOrientation.Left)  ==  null && rp.GetSpawnPoint(WaypointOrientation.Right) != null){
+				return false;
+			}
+		}
+		cols = Physics2D.OverlapCircleAll (new Vector2(rp.transform.position.x,rp.transform.position.y -10.2f), RADAR_CHECK_SIZE);
+		rp.AddGizmo(new Vector3(rp.transform.position.x,rp.transform.position.y-10.2f,0));
+		RoadPiece BottomRp = null;
+		foreach (Collider2D cd in cols) {
+			RoadPiece trp = cd.GetComponent<RoadPiece> ();
+			if (trp == null) {
+				trp = cd.transform.parent.GetComponentInChildren<RoadPiece> ();
+			}
+			if (trp == null) {
+				trp = cd.transform.parent.GetComponent<RoadPiece> ();
+			}
+			if (trp != null) {
+				BottomRp = trp;
+			}
+		}
+
+		if (BottomRp != null) {
+			if (BottomRp.GetSpawnPoint (WaypointOrientation.Top) != null && rp.GetSpawnPoint (WaypointOrientation.Bottom) == null) {
+				return false;
+			} else if (BottomRp.GetSpawnPoint (WaypointOrientation.Top) == null && rp.GetSpawnPoint (WaypointOrientation.Bottom) != null) {
+				return false;
+			}
+		}
+
+
+		return true;
 	}
 
 	public bool SetConnections(){
@@ -205,12 +320,9 @@ public class SpawnPoint : MonoBehaviour {
 		return false;
 	}
 
-	public GameObject AvailablePieceThatFits(){
+	public List<GameObject> AvailablePieceThatFits(){
 		Collider2D [] cols = Physics2D.OverlapCircleAll (new Vector2(transform.position.x,transform.position.y), 1.0f);
 		// if there's an intersection of a piece that fits, return that piece
-		if (cols.Length > 1) {
-			Debug.Log (cols.Length);
-		}
 		SpawnPoint[] spawnPoints = new SpawnPoint[cols.Length];
 
 		List<GameObject> workingPieces;
@@ -257,7 +369,7 @@ public class SpawnPoint : MonoBehaviour {
 		if (AvailablePieces.Count == 0) {
 			return null;
 		} else {
-			return AvailablePieces [Random.Range (0, AvailablePieces.Count)];
+			return AvailablePieces;
 		}
 	}
 
