@@ -2,7 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 
-public class Car : MonoBehaviour {
+public class DeerHunter : MonoBehaviour {
 
 	[SerializeField]
 	private float m_maximumSpeed;
@@ -33,15 +33,7 @@ public class Car : MonoBehaviour {
 
 	private const float MAX_WAYPOINT_COLLISION_DISTANCE = 3.0f;
 
-
-	private bool m_targetingPlayer = false;
-
-	private Vector3 m_playerLastSpotted;
-
 	private static Player m_player;
-
-	[SerializeField]
-	private bool m_hunter;
 
 	[SerializeField]
 	private GameObject m_targetWaypoint;
@@ -77,7 +69,7 @@ public class Car : MonoBehaviour {
 	}
 
 	public void SetFirstTarget(GameObject target){
-		
+
 		m_targetWaypoint = target;
 	}
 
@@ -87,9 +79,8 @@ public class Car : MonoBehaviour {
 		if (m_player == null) {
 			m_player = GameObject.FindGameObjectWithTag ("Player").GetComponent<Player>();
 		}
-		if (m_hunter == false) {
-			StartCoroutine (CheckForDestruction ());
-		}
+
+		StartCoroutine (CheckForDestruction ());
 	}
 
 	// Update is called once per frame
@@ -108,10 +99,7 @@ public class Car : MonoBehaviour {
 	}
 
 	void OnTriggerEnter2D(Collider2D other){
-		if (m_hunter) {
-
-		}
-		else if (other.gameObject == m_targetWaypoint && Vector3.Distance(other.transform.position,transform.position) < MAX_WAYPOINT_COLLISION_DISTANCE) {
+		if (other.gameObject == m_targetWaypoint && Vector3.Distance(other.transform.position,transform.position) < MAX_WAYPOINT_COLLISION_DISTANCE) {
 			if (m_targetWaypoint != null) {
 				Waypoint nextPoint = m_targetWaypoint.GetComponent<Waypoint> ().GetNext ();
 				if (nextPoint != null) {
@@ -137,25 +125,13 @@ public class Car : MonoBehaviour {
 		return m_givePoints;
 	}
 
-	public void TargetPlayer()
-	{
-		m_targetingPlayer = true;
-	}
-
-	public void StopTargetingPlayer()
-	{
-		m_playerLastSpotted = m_player.transform.position;
-		m_targetingPlayer = false;
-	}
-
-
 	void OnCollisionEnter2D(Collision2D collision){
 		if (collision.gameObject.tag == "Player") {
 			// Kill the player
 			collision.gameObject.GetComponent<Player>().KillPlayer();
 		} else {
 			//TODO: inflict damage based off speed and award points accordingly
-			if (m_givePoints && m_hunter == false) {
+			if (m_givePoints) {
 				m_player.GainPoints (100);
 			}
 			m_health--;
@@ -184,30 +160,7 @@ public class Car : MonoBehaviour {
 	void FixedUpdate() {
 		float dir;
 		bool turning = false;
-
-		if (m_targetingPlayer) {
-			//determine if we are to the left or right of the center mass
-			dir = LeftRightTest (m_player.transform.position, transform.position, transform.forward, transform.up);
-
-
-			//apply torque accordingly
-			m_rigidbody.AddTorque ((dir < 0 ? 1 : -1) * m_turnRate);
-		} else if (m_hunter) {
-			if (m_playerLastSpotted == null) {
-				m_playerLastSpotted = new Vector3 (Random.Range (0, RoadPiece.MAX_WIDTH), Random.Range (0, RoadPiece.MAX_HEIGHT),0);
-			}
-
-			if (Vector3.Distance (transform.position, m_playerLastSpotted) < 5.0f) {
-				m_playerLastSpotted =  new Vector3 (Mathf.Clamp(Random.Range(m_playerLastSpotted.x -3.0f,m_playerLastSpotted.x +3.0f),0, RoadPiece.MAX_WIDTH), Mathf.Clamp (Random.Range(m_playerLastSpotted.y -3.0f,m_playerLastSpotted.y +3.0f) ,0, RoadPiece.MAX_HEIGHT));
-			}
-
-			dir = LeftRightTest (m_playerLastSpotted, transform.position, transform.forward, transform.up);
-
-
-			//apply torque accordingly
-			m_rigidbody.AddTorque ((dir < 0 ? 1 : -1) * m_turnRate);
-		}
-		else if (m_avoiding.Count > 0) {
+		if (m_avoiding.Count > 0) {
 			//calculate center of mass
 			Vector3 average = Vector3.zero;
 			bool removeNull = false;
@@ -257,4 +210,5 @@ public class Car : MonoBehaviour {
 		}
 
 	}
+
 }
