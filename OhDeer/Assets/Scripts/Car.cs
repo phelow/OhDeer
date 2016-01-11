@@ -69,6 +69,7 @@ public class Car : MonoBehaviour {
 	}
 
 	public void SetFirstTarget(GameObject target){
+		
 		m_targetWaypoint = target;
 	}
 
@@ -81,7 +82,7 @@ public class Car : MonoBehaviour {
 
 		StartCoroutine (CheckForDestruction ());
 	}
-	
+
 	// Update is called once per frame
 	public IEnumerator CheckForDestruction () {
 		while (true) {

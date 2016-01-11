@@ -48,6 +48,7 @@
      <Compile Include="Assets\Scripts\Car.cs" />
      <Compile Include="Assets\Scripts\CarSpawner.cs" />
      <Compile Include="Assets\Scripts\CarVision.cs" />
+     <Compile Include="Assets\Scripts\ColorCar.cs" />
      <Compile Include="Assets\Scripts\FollowPlayer.cs" />
      <Compile Include="Assets\Scripts\GameOverMenu.cs" />
      <Compile Include="Assets\Scripts\Levels.cs" />

@@ -55,7 +55,9 @@ public class RoadPiece : MonoBehaviour {
 			StartCoroutine (Regenerate ());
 		} else {
 			foreach (SpawnPoint spawnPoint in m_spawnPoints) {
-				spawnPoint.CreateCarSpawns ();
+				if (spawnPoint.IsLinked () == false) {
+					spawnPoint.CreateCarSpawns ();
+				}
 			}
 			m_terminates = true;
 		}

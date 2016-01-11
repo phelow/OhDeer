@@ -11,16 +11,40 @@ public class Waypoint : MonoBehaviour {
 
 	public void SetNext(Waypoint [] next)
 	{
-		Waypoint [] tWayPoints = new Waypoint[m_nextWaypoints.Length + next.Length];
-		int i;
-		for (i = 0; i < m_nextWaypoints.Length; i++) {
-			tWayPoints [i] = m_nextWaypoints [i];
+		int nElements = 0;
+		foreach (Waypoint wp in m_nextWaypoints) {
+			if (wp != null) {
+				nElements++;
+			}
+		}
+		foreach (Waypoint wp in next) {
+			if (wp != null) {
+				nElements++;
+			}
 		}
 
-		for (i = m_nextWaypoints.Length; i < m_nextWaypoints.Length+next.Length; i++) {
-			tWayPoints [i] = next [i - m_nextWaypoints.Length];
+		Waypoint [] tempNext = new Waypoint[nElements] ;
+		nElements = 0;
+		foreach (Waypoint wp in m_nextWaypoints) {
+			if (wp != null) {
+				tempNext [nElements] = wp;
+				nElements++;
+			}
 		}
-		m_nextWaypoints = tWayPoints;
+		foreach (Waypoint wp in next) {
+			if (wp != null) {
+				tempNext [nElements] = wp;
+				nElements++;
+			}
+		}
+		m_nextWaypoints = tempNext;
+
+		foreach (Waypoint wp in m_nextWaypoints) {
+			if (wp == null) {
+				Debug.LogError ("Null");
+			}
+		}
+
 	}
 
 	public Waypoint GetNext(){
