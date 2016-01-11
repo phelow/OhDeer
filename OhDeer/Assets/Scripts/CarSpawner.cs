@@ -5,8 +5,15 @@ public class CarSpawner : MonoBehaviour {
 	[SerializeField]
 	private float m_spawnTime;
 
+	private static Player s_player;
+
+	private static int s_nextEnemyScore = 1000;
+	private static int s_incrementation = 1000;
+
 	[SerializeField]
 	private GameObject[] cars;
+	[SerializeField]
+	private GameObject hunter;
 
 	private const float SPAWN_VARIANCE = 2.0f;
 
@@ -19,6 +26,9 @@ public class CarSpawner : MonoBehaviour {
 
 	// Use this for initialization
 	void Start () {
+		if(s_player == null){
+			s_player = GameObject.FindGameObjectWithTag ("Player").GetComponent<Player> ();
+		}
 		StartCoroutine (SpawnCar ());
 	}
 
@@ -33,7 +43,15 @@ public class CarSpawner : MonoBehaviour {
 
 	public IEnumerator SpawnCar(){
 		while (true) {
-			GameObject car = GameObject.Instantiate (cars [Random.Range (0, cars.Length)]);
+			GameObject next = cars [Random.Range (0, cars.Length)];
+
+			if (s_player.GetScore () > s_nextEnemyScore) {
+				s_nextEnemyScore += s_incrementation + 100;
+				s_incrementation = (int)(s_incrementation * .9f);
+				next = hunter;
+			}
+
+			GameObject car = GameObject.Instantiate (next);
 			car.transform.position = m_spawnTransform.position;
 			car.transform.parent = transform;
 			car.transform.rotation = Quaternion.LookRotation (m_firstTarget.transform.position - transform.position);

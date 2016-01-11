@@ -18,7 +18,9 @@ public class Player : MonoBehaviour {
 		m_totalPoints += points;
 		m_scoreText.text = ""+m_totalPoints;
 	}
-
+	public int GetScore(){
+		return m_totalPoints;
+	}
 	public void KillPlayer()
 	{
 		if (m_playerKillingCoroutine == null) {
