@@ -10,6 +10,9 @@ public class SpawnPoint : MonoBehaviour {
 
 	private GameObject [] m_OriginalViableRoadPieces;
 
+	[SerializeField]
+	private SpriteRenderer m_tunnelSpriteRenderer;
+
 	private const float RADAR_CHECK_SIZE = 2.0f;
 
 	[SerializeField]
@@ -41,9 +44,11 @@ public class SpawnPoint : MonoBehaviour {
 
 	public void Unlink(){
 		m_linked = null;
+		m_tunnelSpriteRenderer.enabled = true;
 	}
 	public void Link(SpawnPoint target){
 		m_linked = target;
+		m_tunnelSpriteRenderer.enabled = false;
 	}
 
 	public bool IsLinked(){
