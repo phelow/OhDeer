@@ -10,6 +10,10 @@ public class TankControls : MonoBehaviour {
 	private const float ROTATION_AMOUNT = 3.0f;
 	private const float FORWARD_MOVEMENT = 10.0f;
 	private const float BACKWARDS_MOVEMENT = -4.0f;
+    private const float TOP_ANIMATION_SPEED = 3.0f;
+
+    [SerializeField]
+    private Animator m_animator;
 
 	[SerializeField]
 	private Rigidbody2D m_rigidbody;
@@ -78,5 +82,7 @@ public class TankControls : MonoBehaviour {
 		} else if (m_downDown) {
 			m_rigidbody.AddForce (m_transform.up * BACKWARDS_MOVEMENT);
 		}
+
+        m_animator.speed = m_rigidbody.velocity.magnitude / TOP_ANIMATION_SPEED;
 	}
 }
