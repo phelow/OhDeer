@@ -24,6 +24,8 @@ public class CarSpawner : MonoBehaviour {
 
 	private GameObject m_firstTarget;
 
+    private bool m_oneTime;
+
 	// Use this for initialization
 	void Start () {
 		if(s_player == null){
@@ -32,8 +34,9 @@ public class CarSpawner : MonoBehaviour {
 		StartCoroutine (SpawnCar ());
 	}
 
-	public void SetFirstTargetForSpawner(GameObject target){
+	public void SetFirstTargetForSpawner(GameObject target, bool OneTime = false){
 		m_firstTarget = target;
+        m_oneTime = OneTime;
 	}
 
 	// Update is called once per frame
@@ -42,6 +45,11 @@ public class CarSpawner : MonoBehaviour {
 	}
 
 	public IEnumerator SpawnCar(){
+        if (m_oneTime)
+        {
+            yield return new WaitForSeconds(1.0f);
+        }
+
 		while (true) {
 			GameObject next = cars [Random.Range (0, cars.Length)];
 
@@ -56,6 +64,12 @@ public class CarSpawner : MonoBehaviour {
 			car.transform.parent = transform;
 			car.transform.rotation = Quaternion.LookRotation (m_firstTarget.transform.position - transform.position);
 			car.GetComponent<Car> ().SetFirstTarget (m_firstTarget);
+
+            if (m_oneTime)
+            {
+                car.transform.parent = null;
+                Destroy(this.gameObject);
+            }
 			yield return new WaitForSeconds (Random.Range (Mathf.Max (MIN_SPAWN_TIME, m_spawnTime - SPAWN_VARIANCE), m_spawnTime + SPAWN_VARIANCE));
 
 		}

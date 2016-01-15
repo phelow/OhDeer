@@ -53,7 +53,15 @@ public class RoadPiece : MonoBehaviour {
 				
 			}
 			StartCoroutine (Regenerate ());
-		} else {
+            //Initial Spawn
+            foreach (SpawnPoint spawnPoint in m_spawnPoints)
+            {
+                if (spawnPoint.IsLinked() == false)
+                {
+                    spawnPoint.OneTimeSpawn();
+                }
+            }
+        } else {
 			foreach (SpawnPoint spawnPoint in m_spawnPoints) {
 				if (spawnPoint.IsLinked () == false) {
 					spawnPoint.CreateCarSpawns ();
@@ -61,7 +69,8 @@ public class RoadPiece : MonoBehaviour {
 			}
 			m_terminates = true;
 		}
-	}
+
+    }
 
 	public bool Terminates(){
 		if (m_terminates) {
