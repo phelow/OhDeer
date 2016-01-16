@@ -69,7 +69,7 @@ public class CarSpawner : MonoBehaviour {
 			car.transform.position = m_spawnTransform.position;
 			car.transform.parent = transform;
            if(m_firstTarget.transform.position != null && transform.position != null) {
-               // car.transform.rotation = Quaternion.LookRotation(m_firstTarget.transform.position - transform.position);
+
                 car.GetComponent<Car>().SetFirstTarget(m_firstTarget);
 
             }
