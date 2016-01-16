@@ -35,6 +35,10 @@ public class CarSpawner : MonoBehaviour {
 	}
 
 	public void SetFirstTargetForSpawner(GameObject target, bool OneTime = false){
+
+		if (target == null) {
+			Destroy (this.gameObject);
+		}
 		m_firstTarget = target;
         m_oneTime = OneTime;
 	}
@@ -50,6 +54,8 @@ public class CarSpawner : MonoBehaviour {
             yield return new WaitForSeconds(1.0f);
         }
 
+        
+
 		while (true) {
 			GameObject next = cars [Random.Range (0, cars.Length)];
 
@@ -62,9 +68,16 @@ public class CarSpawner : MonoBehaviour {
 			GameObject car = GameObject.Instantiate (next);
 			car.transform.position = m_spawnTransform.position;
 			car.transform.parent = transform;
-			car.transform.rotation = Quaternion.LookRotation (m_firstTarget.transform.position - transform.position);
-			car.GetComponent<Car> ().SetFirstTarget (m_firstTarget);
+           if(m_firstTarget.transform.position != null && transform.position != null) {
+               // car.transform.rotation = Quaternion.LookRotation(m_firstTarget.transform.position - transform.position);
+                car.GetComponent<Car>().SetFirstTarget(m_firstTarget);
 
+            }
+            else
+            {
+                Debug.LogError("One time spawner did not work");
+                Destroy(this.gameObject);
+            }
             if (m_oneTime)
             {
                 car.transform.parent = null;

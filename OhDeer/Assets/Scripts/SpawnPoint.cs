@@ -76,8 +76,13 @@ public class SpawnPoint : MonoBehaviour {
             GameObject go = GameObject.Instantiate(m_carSpawner);
             go.transform.position = wp.transform.position;
             go.transform.rotation = wp.transform.rotation;
-            go.transform.parent = transform;
-            go.GetComponent<CarSpawner>().SetFirstTargetForSpawner(wp.gameObject, true);
+			go.transform.parent = transform;
+			Waypoint next = wp.GetNext ();
+			if (next == null) {
+				Destroy (go);
+			} else {
+				go.GetComponent<CarSpawner> ().SetFirstTargetForSpawner (next.gameObject,true);
+			}
         }
     }
 
@@ -87,7 +92,12 @@ public class SpawnPoint : MonoBehaviour {
 			go.transform.position = wp.transform.position;
 			go.transform.rotation = wp.transform.rotation;
 			go.transform.parent = transform;
-			go.GetComponent<CarSpawner> ().SetFirstTargetForSpawner (wp.gameObject);
+			Waypoint next = wp.GetNext ();
+			if (next == null) {
+				Destroy (go);
+			} else {
+				go.GetComponent<CarSpawner> ().SetFirstTargetForSpawner (next.gameObject);
+			}
 		}
 	}
 
