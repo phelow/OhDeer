@@ -50,6 +50,8 @@
      <Compile Include="Assets\Scripts\CarVision.cs" />
      <Compile Include="Assets\Scripts\ColorCar.cs" />
      <Compile Include="Assets\Scripts\DeerHunter.cs" />
+     <Compile Include="Assets\Scripts\DetroyMe.cs" />
+     <Compile Include="Assets\Scripts\ExplosionMaster.cs" />
      <Compile Include="Assets\Scripts\FollowPlayer.cs" />
      <Compile Include="Assets\Scripts\GameOverMenu.cs" />
      <Compile Include="Assets\Scripts\HunterVision.cs" />

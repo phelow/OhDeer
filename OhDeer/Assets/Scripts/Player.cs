@@ -32,7 +32,8 @@ public class Player : MonoBehaviour {
 	private IEnumerator KillPlayerCoroutine()
 	{
 		PlayerPrefs.SetInt ("YourScore", m_totalPoints);
-
+		Destroy (this.gameObject);
+		ExplosionMaster.Explode (transform.position);
 		//TODO: include code for animation here
 		yield return new WaitForSeconds (DEATH_ANIMATION_TIME);
 		SceneManager.LoadScene (Levels.GAME_OVER_LEVEL);

@@ -90,6 +90,7 @@ public class Car : MonoBehaviour {
 		if (m_hunter == false) {
 			StartCoroutine (CheckForDestruction ());
 		}
+
 	}
 
 	// Update is called once per frame
@@ -171,6 +172,7 @@ public class Car : MonoBehaviour {
 
 	void Explode()
 	{
+		ExplosionMaster.Explode (transform.position);
 		//TODO: put in explosion mechanics
 		Destroy(this.gameObject);
 	}
